@@ -214,7 +214,12 @@
             text: "Relocation Report",
             permission: "view_bookings",
           },
-    
+        {
+            id: "special-occasions/qr-scanner",
+            icon: "qr-code-scan",
+            text: "QR Scanner",
+            permission: "view_bookings",
+          },
         ],
       },
       {

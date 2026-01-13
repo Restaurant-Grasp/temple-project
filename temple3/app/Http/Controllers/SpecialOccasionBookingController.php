@@ -2205,6 +2205,63 @@ class SpecialOccasionBookingController extends Controller
                 throw new Exception('Failed to create relocation log: ' . $logError->getMessage());
             }
 
+            // Step 9: Update booking timestamp to trigger receipt regeneration
+            try {
+                $booking->updated_at = now();
+                $booking->save();
+
+                Log::info('Booking timestamp updated for receipt regeneration');
+            } catch (Exception $timestampError) {
+                Log::warning('Failed to update booking timestamp', [
+                    'error' => $timestampError->getMessage()
+                ]);
+                // Non-critical, continue
+            }
+
+            // Step 10: Regenerate receipt with updated seat info and QR code
+            try {
+                // Generate QR code for the booking
+                $qrController = new \App\Http\Controllers\QRCodeController();
+                $qrCodeBase64 = $qrController->generateQRCodeBase64($bookingId);
+
+                // Get admin name who made the change
+                $admin = \App\Models\User::find(auth()->id());
+                $adminName = $admin ? ($admin->name ?? $admin->username ?? 'Admin') : 'System';
+
+                // Prepare seat assignment data for receipt
+                $seatAssignment = [
+                    'table_number' => $newTableNumber,
+                    'row_number' => $request->new_row_number,
+                    'column_number' => $request->new_column_number,
+                    'seat_number' => $newAssignNumber,
+                    'last_updated' => now(),
+                    'updated_by' => $adminName,
+                    'relocated' => true  // Flag to show relocated badge
+                ];
+
+                // Store seat assignment and QR code in booking meta for receipt generation
+                BookingMeta::updateOrCreate(
+                    ['booking_id' => $booking->id, 'meta_key' => 'seat_assignment_data'],
+                    ['meta_value' => json_encode($seatAssignment), 'meta_type' => 'json', 'updated_at' => now()]
+                );
+
+                BookingMeta::updateOrCreate(
+                    ['booking_id' => $booking->id, 'meta_key' => 'qr_code_base64'],
+                    ['meta_value' => $qrCodeBase64, 'meta_type' => 'text', 'updated_at' => now()]
+                );
+
+                Log::info('Receipt data updated with QR code and seat assignment', [
+                    'booking_id' => $bookingId,
+                    'has_qr_code' => !empty($qrCodeBase64),
+                    'seat_assignment' => $seatAssignment
+                ]);
+            } catch (Exception $receiptError) {
+                Log::warning('Failed to update receipt data', [
+                    'error' => $receiptError->getMessage()
+                ]);
+                // Non-critical, continue
+            }
+
             DB::commit();
 
             $newAssignment = [

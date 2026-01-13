@@ -166,18 +166,14 @@ class BookingHistoryController extends Controller
         foreach ($bookings as $booking) {
             $enriched = $this->enrichBookingData($booking);
             
-            // Add SIGNED PDF URL for FULL payment bookings (works without authentication)
+            // Add PDF URL for FULL payment bookings (works without authentication)
             if ($booking->payment_status === 'FULL') {
                 $templeId = $this->getTempleId(); // Get current temple context
                 
-                $enriched['pdf_url'] = URL::temporarySignedRoute(
-                    'booking.pdf.download',
-                    now()->addHours(24), // URL valid for 24 hours
-                    [
-                        'id' => $booking->id,
-                        'temple_id' => $templeId  // Include temple ID in URL
-                    ]
-                );
+                $enriched['pdf_url'] = route('booking.pdf.download', [
+                    'id' => $booking->id,
+                    'temple_id' => $templeId  // Include temple ID in URL
+                ]);
             } else {
                 $enriched['pdf_url'] = null;
             }
@@ -379,20 +375,18 @@ class BookingHistoryController extends Controller
     }
 
     /**
-     * Download single booking receipt as PDF (PUBLIC with signed URL)
+     * Download single booking receipt as PDF (PUBLIC with temple context)
      * 
      * This endpoint is accessible WITHOUT authentication but requires:
-     * 1. Valid signed URL (verified by 'signed' middleware)
-     * 2. Temple ID in URL parameters
-     * 3. Booking must exist and have FULL payment status
+     * 1. Temple ID in URL parameters (handled by temple middleware)
+     * 2. Booking must exist and have FULL payment status
      */
     public function downloadPdf(Request $request, $id)
     {
         try {
-            // Note: The 'signed' middleware has already validated the URL signature
-            // No authentication required - the signed URL proves the request is legitimate
+            // No authentication required - temple middleware handles DB connection
             
-            // Get temple_id from URL parameter (it's part of the signed URL)
+            // Get temple_id from URL parameter
             $templeId = $request->input('temple_id');
             
             if (!$templeId) {
@@ -407,17 +401,9 @@ class BookingHistoryController extends Controller
                 ], 400);
             }
             
-            // Set database connection for this temple
-            // The temple middleware normally does this, but since we're bypassing it,
-            // we need to set it manually
-            config(['database.default' => $templeId]);
-            DB::purge($templeId);
-            DB::reconnect($templeId);
-            
             Log::info('PDF Download Request', [
                 'booking_id' => $id,
                 'temple_id' => $templeId,
-                'has_signature' => $request->hasValidSignature(),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
@@ -550,18 +536,14 @@ class BookingHistoryController extends Controller
 
             $enrichedBooking = $this->enrichBookingData($booking, true);
 
-            // Add SIGNED PDF URL for FULL payment bookings
+            // Add PDF URL for FULL payment bookings
             if ($booking->payment_status === 'FULL') {
                 $templeId = $this->getTempleId(); // Get current temple context
                 
-                $enrichedBooking['pdf_url'] = URL::temporarySignedRoute(
-                    'booking.pdf.download',
-                    now()->addHours(24), // URL valid for 24 hours
-                    [
-                        'id' => $booking->id,
-                        'temple_id' => $templeId  // Include temple ID in URL
-                    ]
-                );
+                $enrichedBooking['pdf_url'] = route('booking.pdf.download', [
+                    'id' => $booking->id,
+                    'temple_id' => $templeId  // Include temple ID in URL
+                ]);
             } else {
                 $enrichedBooking['pdf_url'] = null;
             }

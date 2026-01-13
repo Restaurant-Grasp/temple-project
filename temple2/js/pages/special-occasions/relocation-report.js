@@ -583,7 +583,7 @@
                     if (response.success && response.data) {
                         self.admins = {};
                         response.data.forEach(function (admin) {
-                            const fullName = `${admin.first_name} ${admin.last_name || ''}`.trim();
+                            const fullName = admin.name || admin.username || 'Unknown';
                             self.admins[admin.id] = fullName;
                         });
 
@@ -771,7 +771,7 @@
         // ========================================
         exportToPDF: function () {
             const self = this;
-            
+
             console.log('Starting PDF export...');
             TempleCore.showLoading(true);
 
@@ -784,7 +784,7 @@
             console.log('PDF Export params:', params);
 
             // Build the API URL
-            const apiUrl = `${TempleAPI.baseURL}/reports/relocation-report`;
+            const apiUrl = `${TempleAPI.getBaseUrl()}/reports/relocation-report`;
 
             // Use XMLHttpRequest for blob handling
             const xhr = new XMLHttpRequest();
@@ -792,22 +792,22 @@
             xhr.responseType = 'blob';
 
             // Set headers
-            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            const token = localStorage.getItem(APP_CONFIG.STORAGE.ACCESS_TOKEN) || sessionStorage.getItem(APP_CONFIG.STORAGE.ACCESS_TOKEN);
             if (token) {
                 xhr.setRequestHeader('Authorization', `Bearer ${token}`);
             }
             xhr.setRequestHeader('X-Temple-ID', TempleAPI.getTempleId ? TempleAPI.getTempleId() : 'temple1');
 
-            xhr.onload = function() {
+            xhr.onload = function () {
                 TempleCore.showLoading(false);
-                
+
                 if (this.status === 200) {
                     // Check if response is actually a blob
                     if (this.response instanceof Blob) {
                         // Check if it's an error JSON response
                         if (this.response.type === 'application/json') {
                             const reader = new FileReader();
-                            reader.onload = function() {
+                            reader.onload = function () {
                                 try {
                                     const errorData = JSON.parse(reader.result);
                                     console.error('PDF Export Error:', errorData);
@@ -828,9 +828,9 @@
                         a.download = 'Relocation_Report_' + self.formatDateForFilename(new Date()) + '.pdf';
                         document.body.appendChild(a);
                         a.click();
-                        
+
                         // Cleanup
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.URL.revokeObjectURL(url);
                             document.body.removeChild(a);
                         }, 100);
@@ -846,7 +846,7 @@
                 }
             };
 
-            xhr.onerror = function() {
+            xhr.onerror = function () {
                 TempleCore.showLoading(false);
                 console.error('Network error during PDF export');
                 TempleCore.showToast('Network error - Failed to export PDF', 'error');
@@ -857,7 +857,7 @@
 
         exportToExcel: function () {
             const self = this;
-            
+
             console.log('Starting Excel export...');
             TempleCore.showLoading(true);
 
@@ -870,7 +870,7 @@
             console.log('Excel Export params:', params);
 
             // Build the API URL
-            const apiUrl = `${TempleAPI.baseURL}/reports/relocation-report`;
+            const apiUrl = `${TempleAPI.getBaseUrl()}/reports/relocation-report`;
 
             // Use XMLHttpRequest for blob handling
             const xhr = new XMLHttpRequest();
@@ -878,21 +878,21 @@
             xhr.responseType = 'blob';
 
             // Set headers
-            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            const token = localStorage.getItem(APP_CONFIG.STORAGE.ACCESS_TOKEN) || sessionStorage.getItem(APP_CONFIG.STORAGE.ACCESS_TOKEN);
             if (token) {
                 xhr.setRequestHeader('Authorization', `Bearer ${token}`);
             }
             xhr.setRequestHeader('X-Temple-ID', TempleAPI.getTempleId ? TempleAPI.getTempleId() : 'temple1');
 
-            xhr.onload = function() {
+            xhr.onload = function () {
                 TempleCore.showLoading(false);
-                
+
                 if (this.status === 200) {
                     if (this.response instanceof Blob) {
                         // Check if it's an error JSON response
                         if (this.response.type === 'application/json') {
                             const reader = new FileReader();
-                            reader.onload = function() {
+                            reader.onload = function () {
                                 try {
                                     const errorData = JSON.parse(reader.result);
                                     console.error('Excel Export Error:', errorData);
@@ -913,9 +913,9 @@
                         a.download = 'Relocation_Report_' + self.formatDateForFilename(new Date()) + '.xlsx';
                         document.body.appendChild(a);
                         a.click();
-                        
+
                         // Cleanup
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.URL.revokeObjectURL(url);
                             document.body.removeChild(a);
                         }, 100);
@@ -931,7 +931,7 @@
                 }
             };
 
-            xhr.onerror = function() {
+            xhr.onerror = function () {
                 TempleCore.showLoading(false);
                 console.error('Network error during Excel export');
                 TempleCore.showToast('Network error - Failed to export Excel', 'error');
@@ -940,7 +940,7 @@
             xhr.send();
         },
 
-        formatDateForFilename: function(date) {
+        formatDateForFilename: function (date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');

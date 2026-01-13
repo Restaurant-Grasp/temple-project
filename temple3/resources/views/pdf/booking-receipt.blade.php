@@ -318,6 +318,74 @@
         .discount-amount {
             color: #28a745;
         }
+        
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border: 2px dashed #8b0000;
+            margin: 30px 0;
+        }
+        
+        .qr-code-image {
+            max-width: 180px;
+            max-height: 180px;
+            margin: 15px auto;
+        }
+        
+        .qr-instruction {
+            font-size: 9pt;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* Seat Assignment Section */
+        .seat-section {
+            background-color: #fff9e6;
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .seat-header {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #8b0000;
+            margin-bottom: 15px;
+        }
+        
+        .seat-details {
+            font-size: 11pt;
+            line-height: 1.8;
+        }
+        
+        .seat-location {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        .last-updated {
+            font-size: 8.5pt;
+            color: #666;
+            font-style: italic;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .relocated-badge {
+            display: inline-block;
+            background-color: #ff9800;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 8pt;
+            font-weight: bold;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -426,6 +494,52 @@
                 <div class="info-cell info-value">{{ $booking['devotee']['email'] }}</div>
             </div>
             @endif
+        </div>
+    </div>
+    @endif
+
+    <!-- Seat Assignment Section (for Special Occasions) -->
+    @if(!empty($booking['seat_assignment']))
+    <div class="seat-section">
+        <div class="seat-header">
+            📍 Seat Assignment
+            @if(!empty($booking['seat_assignment']['relocated']))
+                <span class="relocated-badge">RELOCATED</span>
+            @endif
+        </div>
+        <div class="seat-details">
+            @if(!empty($booking['seat_assignment']['table_number']))
+                <strong>Table:</strong> {{ $booking['seat_assignment']['table_number'] }}<br>
+            @endif
+            @if(!empty($booking['seat_assignment']['row_number']) && !empty($booking['seat_assignment']['column_number']))
+                <strong>Position:</strong> Row {{ $booking['seat_assignment']['row_number'] }}, Column {{ $booking['seat_assignment']['column_number'] }}<br>
+            @endif
+            @if(!empty($booking['seat_assignment']['seat_number']))
+                <strong>Seat Number:</strong> 
+                <span class="seat-location">{{ $booking['seat_assignment']['seat_number'] }}</span>
+            @endif
+        </div>
+        @if(!empty($booking['seat_assignment']['last_updated']))
+        <div class="last-updated">
+            ⏱️ Last Updated: {{ \Carbon\Carbon::parse($booking['seat_assignment']['last_updated'])->format('d F Y, h:i A') }}
+            @if(!empty($booking['seat_assignment']['updated_by']))
+                by {{ $booking['seat_assignment']['updated_by'] }}
+            @endif
+        </div>
+        @endif
+    </div>
+    @endif
+
+    <!-- QR Code Section -->
+    @if(!empty($qr_code))
+    <div class="qr-section">
+        <div style="font-size: 11pt; font-weight: bold; color: #8b0000; margin-bottom: 10px;">
+            📱 Scan to Verify Booking
+        </div>
+        <img src="{{ $qr_code }}" alt="Booking QR Code" class="qr-code-image" />
+        <div class="qr-instruction">
+            Scan this QR code to view current booking details and seat assignment.<br>
+            The QR code always shows the latest information, even after relocations.
         </div>
     </div>
     @endif
@@ -572,6 +686,11 @@
     <div class="footer">
         <div>This is a computer-generated receipt and does not require a signature.</div>
         <div style="margin-top: 10px;">Generated on: <strong>{{ $generated_at }}</strong></div>
+        @if(!empty($booking['updated_at']) && $booking['updated_at'] != $booking['created_at'])
+        <div style="margin-top: 5px; font-size: 8.5pt; color: #999;">
+            Receipt last updated: {{ \Carbon\Carbon::parse($booking['updated_at'])->format('d F Y, h:i A') }}
+        </div>
+        @endif
         <div class="footer-note">
             Thank you for your support!<br>
             &copy; {{ date('Y') }} {{ $temple['temple_name'] }}. All rights reserved.

@@ -300,7 +300,7 @@ class AuthController extends Controller
             return $this->unauthorizedResponse('User account is not active');
         }
 
-        // try {
+         try {
             // Get the old token from header
             $oldToken = JWTAuth::getToken();
 
@@ -348,13 +348,13 @@ class AuthController extends Controller
                 'expires_in' => $customTTL * 60,
                 'expires_at' => $tokenExpiry->toIso8601String()
             ], 'Token refreshed successfully');
-        // } catch (TokenExpiredException $e) {
-        //     return $this->unauthorizedResponse('Token has expired');
-        // } catch (TokenInvalidException $e) {
-        //     return $this->unauthorizedResponse('Token is invalid');
-        // } catch (JWTException $e) {
-        //     return $this->errorResponse('Could not refresh token');
-        // }
+        } catch (TokenExpiredException $e) {
+            return $this->unauthorizedResponse('Token has expired');
+        } catch (TokenInvalidException $e) {
+            return $this->unauthorizedResponse('Token is invalid');
+        } catch (JWTException $e) {
+            return $this->errorResponse('Could not refresh token');
+        }
     }
 
     /**

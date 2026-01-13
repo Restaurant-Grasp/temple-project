@@ -863,25 +863,25 @@
                 self.validatePasswordFields();
             });
 
- $(document).on('click', '#toggleNewPassword, #toggleConfirmPassword', function (e) {
-    e.preventDefault();
-    const $group = $(this).closest('.input-group');
-    const $input = $group.find('input');
-    const $icon  = $(this).find('i');
+            $(document).on('click', '#toggleNewPassword, #toggleConfirmPassword', function (e) {
+                e.preventDefault();
+                const $group = $(this).closest('.input-group');
+                const $input = $group.find('input');
+                const $icon = $(this).find('i');
 
-    if ($input.attr('type') === 'password') {
-        $input.attr('type', 'text');
-        $icon.removeClass('bi-eye').addClass('bi-eye-slash');
-    } else {
-        $input.attr('type', 'password');
-        $icon.removeClass('bi-eye-slash').addClass('bi-eye');
-    }
-});
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    $input.attr('type', 'password');
+                    $icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
 
-// Real-time validation (scoped to modal)
-$('#resetPasswordModal').on('input', '#newPassword, #confirmPassword', function () {
-    StaffPage.validatePasswordFields();
-});
+            // Real-time validation (scoped to modal)
+            $('#resetPasswordModal').on('input', '#newPassword, #confirmPassword', function () {
+                StaffPage.validatePasswordFields();
+            });
             // Manage designations
             $('#manageDesignationsBtn').on('click', function () {
                 TempleRouter.navigate('designation');
@@ -959,59 +959,59 @@ $('#resetPasswordModal').on('input', '#newPassword, #confirmPassword', function 
                 self.downloadTemplate();
             });
         },
-   validatePasswordFields: function () {
-    const $modal = $('#resetPasswordModal');
-    const $newPwd = $modal.find('#newPassword');
-    const $cnfPwd = $modal.find('#confirmPassword');
+        validatePasswordFields: function () {
+            const $modal = $('#resetPasswordModal');
+            const $newPwd = $modal.find('#newPassword');
+            const $cnfPwd = $modal.find('#confirmPassword');
 
-    const newPassword = ($newPwd.val() || '').trim();
-    const confirmPassword = ($cnfPwd.val() || '').trim();
-    let isValid = true;
+            const newPassword = ($newPwd.val() || '').trim();
+            const confirmPassword = ($cnfPwd.val() || '').trim();
+            let isValid = true;
 
-    // Clear previous error states
-    [$newPwd, $cnfPwd].forEach($f => {
-        $f.removeClass('is-invalid');
-        $f.closest('.mb-3').find('.invalid-feedback').text('').hide();
-    });
+            // Clear previous error states
+            [$newPwd, $cnfPwd].forEach($f => {
+                $f.removeClass('is-invalid');
+                $f.closest('.mb-3').find('.invalid-feedback').text('').hide();
+            });
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    // Empty checks (so we don't wrongly flag the user later)
-    if (!newPassword) {
-        $newPwd.addClass('is-invalid');
-        $newPwd.closest('.mb-3').find('.invalid-feedback')
-            .text('New password is required.')
-            .show();
-        isValid = false;
-    }
-    if (!confirmPassword) {
-        $cnfPwd.addClass('is-invalid');
-        $cnfPwd.closest('.mb-3').find('.invalid-feedback')
-            .text('Confirm password is required.')
-            .show();
-        isValid = false;
-    }
+            // Empty checks (so we don't wrongly flag the user later)
+            if (!newPassword) {
+                $newPwd.addClass('is-invalid');
+                $newPwd.closest('.mb-3').find('.invalid-feedback')
+                    .text('New password is required.')
+                    .show();
+                isValid = false;
+            }
+            if (!confirmPassword) {
+                $cnfPwd.addClass('is-invalid');
+                $cnfPwd.closest('.mb-3').find('.invalid-feedback')
+                    .text('Confirm password is required.')
+                    .show();
+                isValid = false;
+            }
 
-    // Format check (only if present)
-    if (newPassword && !passwordRegex.test(newPassword)) {
-        $newPwd.addClass('is-invalid');
-        $newPwd.closest('.mb-3').find('.invalid-feedback')
-            .text('Password must be at least 8 chars and include uppercase, lowercase, number, and special character.')
-            .show();
-        isValid = false;
-    }
+            // Format check (only if present)
+            if (newPassword && !passwordRegex.test(newPassword)) {
+                $newPwd.addClass('is-invalid');
+                $newPwd.closest('.mb-3').find('.invalid-feedback')
+                    .text('Password must be at least 8 chars and include uppercase, lowercase, number, and special character.')
+                    .show();
+                isValid = false;
+            }
 
-    // Match check (only if both present)
-    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
-        $cnfPwd.addClass('is-invalid');
-        $cnfPwd.closest('.mb-3').find('.invalid-feedback')
-            .text('Passwords do not match.')
-            .show();
-        isValid = false;
-    }
+            // Match check (only if both present)
+            if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+                $cnfPwd.addClass('is-invalid');
+                $cnfPwd.closest('.mb-3').find('.invalid-feedback')
+                    .text('Passwords do not match.')
+                    .show();
+                isValid = false;
+            }
 
-    return isValid;
-},
+            return isValid;
+        },
 
         openStaffModal: function (staffId = null) {
             // Reset form
@@ -1281,316 +1281,274 @@ $('#resetPasswordModal').on('input', '#newPassword, #confirmPassword', function 
                 });
         },
 
-saveStaff: function () {
-    const self = this;
+        saveStaff: function () {
+            const self = this;
 
-    // Validate form
-    if (!this.validateForm()) {
-        return;
-    }
-
-    // Prepare FormData
-    const formData = new FormData();
-    const staffId = this.currentStaffId;
-
-    // ===================================
-    // COLLECT FORM DATA
-    // ===================================
-    $('#staffForm').find('input, select, textarea').each(function () {
-        const field = $(this);
-        const name = field.attr('name');
-
-        if (!name) return;
-
-        // Skip nested fields handled separately
-        if (
-            name.startsWith('current_address_') ||
-            name.startsWith('permanent_address_') ||
-            name.startsWith('bank_')
-        ) return;
-
-        // Handle different input types
-        if (field.is('select[multiple]')) {
-            const values = field.val() || [];
-            // Save as comma-separated string for backend
-            formData.append(name, values.join(','));
-            // Also send array format for validation
-            if (name === 'work_shift') {
-                values.forEach(v => formData.append('work_shifts[]', v));
+            // Validate form
+            if (!this.validateForm()) {
+                return;
             }
-        } else if (field.attr('type') === 'file') {
-            if (field[0].files.length > 0) {
-                if (field.attr('multiple')) {
-                    for (let i = 0; i < field[0].files.length; i++) {
-                        formData.append(name, field[0].files[i]);
+
+            // Prepare FormData
+            const formData = new FormData();
+            const staffId = this.currentStaffId;
+
+            // ===================================
+            // COLLECT FORM DATA
+            // ===================================
+            $('#staffForm').find('input, select, textarea').each(function () {
+                const field = $(this);
+                const name = field.attr('name');
+
+                if (!name) return;
+
+                // Skip nested fields handled separately
+                if (
+                    name.startsWith('current_address_') ||
+                    name.startsWith('permanent_address_') ||
+                    name.startsWith('bank_')
+                ) return;
+
+                // Handle different input types
+                if (field.is('select[multiple]')) {
+                    const values = field.val() || [];
+                    // Save as comma-separated string for backend
+                    formData.append(name, values.join(','));
+                    // Also send array format for validation
+                    if (name === 'work_shift') {
+                        values.forEach(v => formData.append('work_shifts[]', v));
                     }
+                } else if (field.attr('type') === 'file') {
+                    if (field[0].files.length > 0) {
+                        if (field.attr('multiple')) {
+                            for (let i = 0; i < field[0].files.length; i++) {
+                                formData.append(name, field[0].files[i]);
+                            }
+                        } else {
+                            formData.append(name, field[0].files[0]);
+                        }
+                    }
+                } else if (field.attr('type') === 'checkbox') {
+                    formData.append(name, field.is(':checked') ? 1 : 0);
                 } else {
-                    formData.append(name, field[0].files[0]);
+                    formData.append(name, field.val());
                 }
+            });
+
+            // ===================================
+            // HANDLE ADDRESS FIELDS
+            // ===================================
+            // Current Address
+            const currentAddress = {
+                line1: $('[name="current_address_line1"]').val(),
+                line2: $('[name="current_address_line2"]').val(),
+                city: $('[name="current_address_city"]').val(),
+                state: $('[name="current_address_state"]').val(),
+                country: $('[name="current_address_country"]').val(),
+                pincode: $('[name="current_address_pincode"]').val()
+            };
+
+            for (const key in currentAddress) {
+                formData.append(`current_address[${key}]`, currentAddress[key] || '');
             }
-        } else if (field.attr('type') === 'checkbox') {
-            formData.append(name, field.is(':checked') ? 1 : 0);
-        } else {
-            formData.append(name, field.val());
-        }
-    });
 
-    // ===================================
-    // HANDLE ADDRESS FIELDS
-    // ===================================
-    // Current Address
-    const currentAddress = {
-        line1: $('[name="current_address_line1"]').val(),
-        line2: $('[name="current_address_line2"]').val(),
-        city: $('[name="current_address_city"]').val(),
-        state: $('[name="current_address_state"]').val(),
-        country: $('[name="current_address_country"]').val(),
-        pincode: $('[name="current_address_pincode"]').val()
-    };
+            // Permanent Address
+            const permanentAddress = {
+                line1: $('[name="permanent_address_line1"]').val(),
+                line2: $('[name="permanent_address_line2"]').val(),
+                city: $('[name="permanent_address_city"]').val(),
+                state: $('[name="permanent_address_state"]').val(),
+                country: $('[name="permanent_address_country"]').val(),
+                pincode: $('[name="permanent_address_pincode"]').val()
+            };
 
-    for (const key in currentAddress) {
-        formData.append(`current_address[${key}]`, currentAddress[key] || '');
-    }
+            for (const key in permanentAddress) {
+                formData.append(`permanent_address[${key}]`, permanentAddress[key] || '');
+            }
 
-    // Permanent Address
-    const permanentAddress = {
-        line1: $('[name="permanent_address_line1"]').val(),
-        line2: $('[name="permanent_address_line2"]').val(),
-        city: $('[name="permanent_address_city"]').val(),
-        state: $('[name="permanent_address_state"]').val(),
-        country: $('[name="permanent_address_country"]').val(),
-        pincode: $('[name="permanent_address_pincode"]').val()
-    };
+            // ===================================
+            // HANDLE BANK DETAILS
+            // ===================================
+            const bankDetails = {
+                bank_name: $('[name="bank_name"]').val(),
+                branch: $('[name="bank_branch"]').val(),
+                account_number: $('[name="bank_account_number"]').val(),
+                ifsc_code: $('[name="bank_ifsc_code"]').val(),
+                account_type: $('[name="bank_account_type"]').val()
+            };
 
-    for (const key in permanentAddress) {
-        formData.append(`permanent_address[${key}]`, permanentAddress[key] || '');
-    }
+            for (const key in bankDetails) {
+                formData.append(`bank_details[${key}]`, bankDetails[key] || '');
+            }
 
-    // ===================================
-    // HANDLE BANK DETAILS
-    // ===================================
-    const bankDetails = {
-        bank_name: $('[name="bank_name"]').val(),
-        branch: $('[name="bank_branch"]').val(),
-        account_number: $('[name="bank_account_number"]').val(),
-        ifsc_code: $('[name="bank_ifsc_code"]').val(),
-        account_type: $('[name="bank_account_type"]').val()
-    };
+            // ===================================
+            // SUBMIT TO API
+            // ===================================
+            TempleCore.showLoading(true);
 
-    for (const key in bankDetails) {
-        formData.append(`bank_details[${key}]`, bankDetails[key] || '');
-    }
-
-    // ===================================
-    // SUBMIT TO API
-    // ===================================
-    TempleCore.showLoading(true);
-
-    let request;
-    if (staffId) {
-        formData.append('_method', 'PUT'); // Laravel PUT override
-        request = TempleAPI.postFormData(`/staff/${staffId}`, formData);
-    } else {
-        request = TempleAPI.postFormData('/staff', formData);
-    }
-
-    request
-        .done(function (response) {
-            if (response.success) {
-                console.log('Staff saved successfully:', response);
-                
-                // Show success message
-                TempleCore.showToast('Staff saved successfully', 'success');
-
-                // ===================================
-                // DISPLAY CREDENTIALS FOR NEW STAFF
-                // ===================================
-                if (!staffId && response.credentials) {
-                    self.showLoginCredentialsModal(response);
-                }
-
-                // Close modal and refresh
-                $('#staffModal').modal('hide');
-                self.loadStaffList();
-                self.loadStatistics();
+            let request;
+            if (staffId) {
+                formData.append('_method', 'PUT'); // Laravel PUT override
+                request = TempleAPI.postFormData(`/staff/${staffId}`, formData);
             } else {
-                TempleCore.showToast(response.message || 'Failed to save staff', 'error');
+                request = TempleAPI.postFormData('/staff', formData);
             }
-        })
-        .fail(function (xhr) {
-            const response = xhr.responseJSON;
-            console.error('Staff save failed:', response);
 
-            // Clear old errors
-            $('#staffForm').find('.is-invalid').removeClass('is-invalid');
-            $('#staffForm').find('.invalid-feedback').remove();
+            request
+                .done(function (response) {
+                    if (response.success) {
+                        console.log('Staff saved successfully:', response);
 
-            if (response && response.errors) {
-                $.each(response.errors, function (field, messages) {
-                    let fieldElement = $(`[name="${field}"]`);
+                        // Show success message
+                        TempleCore.showToast('Staff saved successfully', 'success');
 
-                    // Handle nested fields like current_address.line1
-                    if (field.includes('.')) {
-                        const parts = field.split('.');
-                        fieldElement = $(`[name="${parts[0]}_${parts[1]}"]`);
+                        // ===================================
+                        // DISPLAY CREDENTIALS FOR NEW STAFF
+                        // ===================================
+                        if (!staffId && response.credentials) {
+                            self.showLoginCredentialsModal(response);
+                        }
+
+                        // Close modal and refresh
+                        $('#staffModal').modal('hide');
+                        self.loadStaffList();
+                        self.loadStatistics();
+                    } else {
+                        TempleCore.showToast(response.message || 'Failed to save staff', 'error');
                     }
+                })
+                .fail(function (xhr) {
+                    const response = xhr.responseJSON;
+                    console.error('Staff save failed:', response);
 
-                    fieldElement.addClass('is-invalid');
-                    fieldElement.after(`<div class="invalid-feedback">${messages[0]}</div>`);
+                    // Clear old errors
+                    $('#staffForm').find('.is-invalid').removeClass('is-invalid');
+                    $('#staffForm').find('.invalid-feedback').remove();
+
+                    if (response && response.errors) {
+                        $.each(response.errors, function (field, messages) {
+                            let fieldElement = $(`[name="${field}"]`);
+
+                            // Handle nested fields like current_address.line1
+                            if (field.includes('.')) {
+                                const parts = field.split('.');
+                                fieldElement = $(`[name="${parts[0]}_${parts[1]}"]`);
+                            }
+
+                            fieldElement.addClass('is-invalid');
+                            fieldElement.after(`<div class="invalid-feedback">${messages[0]}</div>`);
+                        });
+                        TempleCore.showToast('Please fix validation errors', 'error');
+                    } else {
+                        TempleCore.showToast(response?.message || 'An error occurred', 'error');
+                    }
+                })
+                .always(function () {
+                    TempleCore.showLoading(false);
                 });
-                TempleCore.showToast('Please fix validation errors', 'error');
-            } else {
-                TempleCore.showToast(response?.message || 'An error occurred', 'error');
-            }
-        })
-        .always(function () {
-            TempleCore.showLoading(false);
-        });
-},
+        },
 
-showLoginCredentialsModal: function(response) {
-    const credentials = response.credentials;
-    const instructions = response.login_instructions;
-    
-    // Create a comprehensive modal with all information
-    const modalHtml = `
-        <div class="modal fade" id="credentialsModal" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">
-                            <i class="bi bi-check-circle-fill"></i> Staff Account Created Successfully!
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        showLoginCredentialsModal: function (response) {
+            const credentials = response.credentials;
+            const instructions = response.login_instructions;
+
+            // Create a comprehensive modal with all information
+        
+const modalHtml = `
+<div class="modal fade" id="credentialsModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle-fill"></i> Staff Account Created Successfully!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <!-- Success Message -->
+                <div class="alert alert-success">
+                    <h6 class="alert-heading">
+                        <i class="bi bi-person-check"></i> Staff Member Created
+                    </h6>
+                    <p class="mb-0">
+                        The staff account has been created successfully.
+                        ${credentials.sent_to_email
+                            ? ' Login credentials have been sent to the staff email address.'
+                            : ' Please share these credentials with the staff member.'
+                        }
+                    </p>
+                </div>
+
+                <!-- Credentials Box -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <strong><i class="bi bi-key"></i> Login Credentials</strong>
                     </div>
-                    <div class="modal-body">
-                        <!-- Success Message -->
-                        <div class="alert alert-success">
-                            <h6 class="alert-heading">
-                                <i class="bi bi-person-check"></i> Staff Member Created
-                            </h6>
-                            <p class="mb-0">The staff account has been created successfully. ${
-                                credentials.sent_to_email 
-                                ? 'Login credentials have been sent to the staff email address.' 
-                                : 'Please share these credentials with the staff member.'
-                            }</p>
-                        </div>
+                    <div class="card-body">
 
-                        <!-- Credentials Box -->
-                        <div class="card bg-light mb-3">
-                            <div class="card-header">
-                                <strong><i class="bi bi-key"></i> Login Credentials</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="row mb-2">
-                                    <div class="col-4 text-end"><strong>Username:</strong></div>
-                                    <div class="col-8">
-                                        <code class="bg-white p-2 d-inline-block" style="font-size: 1.1em;">
-                                            ${credentials.username}
-                                        </code>
-                                        <button class="btn btn-sm btn-outline-secondary ms-2" 
-                                                onclick="navigator.clipboard.writeText('${credentials.username}'); 
-                                                TempleCore.showToast('Username copied!', 'success');">
-                                            <i class="bi bi-clipboard"></i> Copy
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-4 text-end"><strong>Password:</strong></div>
-                                    <div class="col-8">
-                                        <code class="bg-white p-2 d-inline-block" style="font-size: 1.1em;">
-                                            ${credentials.password}
-                                        </code>
-                                        <button class="btn btn-sm btn-outline-secondary ms-2" 
-                                                onclick="navigator.clipboard.writeText('${credentials.password}'); 
-                                                TempleCore.showToast('Password copied!', 'success');">
-                                            <i class="bi bi-clipboard"></i> Copy
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-4 text-end"><strong>Status:</strong></div>
-                                    <div class="col-8">
-                                        <span class="badge bg-success">Active</span>
-                                    </div>
-                                </div>
+                        <div class="row mb-2">
+                            <div class="col-4 text-end"><strong>Username:</strong></div>
+                            <div class="col-8">
+                                <code class="bg-white p-2 d-inline-block fs-6">
+                                    ${credentials.username}
+                                </code>
+                                <button class="btn btn-sm btn-outline-secondary ms-2"
+                                    onclick="navigator.clipboard.writeText('${credentials.username}');
+                                    TempleCore.showToast('Username copied!', 'success');">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Login Instructions -->
-                        <div class="card border-warning mb-3">
-                            <div class="card-header bg-warning text-dark">
-                                <strong><i class="bi bi-exclamation-triangle"></i> Important Login Instructions</strong>
-                            </div>
-                            <div class="card-body">
-                                <ol class="mb-0">
-                                    <li class="mb-2">
-                                        <strong>Use the FULL username</strong> including the <code>@temple1</code> suffix
-                                        <br><small class="text-muted">Example: ${credentials.username}</small>
-                                    </li>
-                                    <li class="mb-2">
-                                        <strong>Select correct login channel:</strong> 
-                                        <span class="badge bg-primary">ADMIN</span> or 
-                                        <span class="badge bg-primary">COUNTER</span>
-                                        <br><small class="text-danger">⚠️ Staff cannot login from ONLINE/APP channels</small>
-                                    </li>
-                                    <li class="mb-0">
-                                        <strong>First login:</strong> Staff will be required to change password
-                                    </li>
-                                </ol>
+                        <div class="row mb-2">
+                            <div class="col-4 text-end"><strong>Password:</strong></div>
+                            <div class="col-8">
+                                <code class="bg-white p-2 d-inline-block fs-6">
+                                    ${credentials.password}
+                                </code>
+                                <button class="btn btn-sm btn-outline-secondary ms-2"
+                                    onclick="navigator.clipboard.writeText('${credentials.password}');
+                                    TempleCore.showToast('Password copied!', 'success');">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
                             </div>
                         </div>
 
-                        <!-- API Example (for developers) -->
-                        <div class="accordion" id="apiAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" 
-                                            data-bs-toggle="collapse" data-bs-target="#apiExample">
-                                        <i class="bi bi-code-slash"></i> API Request Example (For Developers)
-                                    </button>
-                                </h2>
-                                <div id="apiExample" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
-                                    <div class="accordion-body">
-                                        <pre class="bg-dark text-light p-3 rounded" style="font-size: 0.85em;"><code>POST /api/v1/auth/login
-Headers:
-  Content-Type: application/json
-  X-Temple-ID: temple1
-
-Body:
-{
-  "username": "${credentials.username}",
-  "password": "${credentials.password}",
-  "request_through": "ADMIN"
-}</code></pre>
-                                    </div>
-                                </div>
+                        <div class="row">
+                            <div class="col-4 text-end"><strong>Status:</strong></div>
+                            <div class="col-8">
+                                <span class="badge bg-success">Active</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                            <i class="bi bi-check"></i> I Understand
-                        </button>
+
                     </div>
                 </div>
+
             </div>
         </div>
-    `;
+    </div>
+</div>
+`;
 
-    // Remove existing modal if any
-    $('#credentialsModal').remove();
-    
-    // Add to body and show
-    $('body').append(modalHtml);
-    const modal = new bootstrap.Modal(document.getElementById('credentialsModal'));
-    modal.show();
-    
-    // Clean up on hide
-    $('#credentialsModal').on('hidden.bs.modal', function () {
-        $(this).remove();
-    });
-},
+
+            // Remove existing modal if any
+            $('#credentialsModal').remove();
+
+            // Add to body and show
+            $('body').append(modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('credentialsModal'));
+            modal.show();
+
+            // Clean up on hide
+            $('#credentialsModal').on('hidden.bs.modal', function () {
+                $(this).remove();
+            });
+        },
 
 
 
@@ -1809,25 +1767,25 @@ Body:
                     }
                 });
         },
- openResetPasswordModal: function (staffId) {
-    const $modal = $('#resetPasswordModal');
-    const $form = $modal.find('#resetPasswordForm');
+        openResetPasswordModal: function (staffId) {
+            const $modal = $('#resetPasswordModal');
+            const $form = $modal.find('#resetPasswordForm');
 
-    // Reset fields + errors
-    $form[0].reset();
-    $modal.find('#resetStaffId').val(staffId);
-    $modal.find('#newPassword, #confirmPassword')
-        .removeClass('is-invalid')
-        .attr('type', 'password');
-    $form.find('.invalid-feedback').text('').hide();
+            // Reset fields + errors
+            $form[0].reset();
+            $modal.find('#resetStaffId').val(staffId);
+            $modal.find('#newPassword, #confirmPassword')
+                .removeClass('is-invalid')
+                .attr('type', 'password');
+            $form.find('.invalid-feedback').text('').hide();
 
-    // Reset icons
-    $modal.find('#toggleNewPassword i, #toggleConfirmPassword i')
-        .removeClass('bi-eye-slash')
-        .addClass('bi-eye');
+            // Reset icons
+            $modal.find('#toggleNewPassword i, #toggleConfirmPassword i')
+                .removeClass('bi-eye-slash')
+                .addClass('bi-eye');
 
-    $modal.modal('show');
-},
+            $modal.modal('show');
+        },
 
         updateStatus: function (staffId, action) {
             const self = this;
@@ -1937,57 +1895,57 @@ Body:
             }
             return countryName;
         },
-    resetPasswordManual: function () {
-    const $modal = $('#resetPasswordModal');
-    const staffId = $modal.find('#resetStaffId').val();
-    const newPassword = ($modal.find('#newPassword').val() || '').trim();
-    const confirmPassword = ($modal.find('#confirmPassword').val() || '').trim();
+        resetPasswordManual: function () {
+            const $modal = $('#resetPasswordModal');
+            const staffId = $modal.find('#resetStaffId').val();
+            const newPassword = ($modal.find('#newPassword').val() || '').trim();
+            const confirmPassword = ($modal.find('#confirmPassword').val() || '').trim();
 
-    // Validate (this will also show field-level messages)
-    if (!this.validatePasswordFields()) {
-        TempleCore.showToast('Please fix the validation errors', 'warning');
-        return;
-    }
+            // Validate (this will also show field-level messages)
+            if (!this.validatePasswordFields()) {
+                TempleCore.showToast('Please fix the validation errors', 'warning');
+                return;
+            }
 
-    if (!staffId) {
-        TempleCore.showToast('Missing staff id for password reset', 'error');
-        return;
-    }
+            if (!staffId) {
+                TempleCore.showToast('Missing staff id for password reset', 'error');
+                return;
+            }
 
-    TempleCore.showLoading(true);
-    TempleAPI.post(`/staff/${staffId}/reset-password-manual`, {
-        new_password: newPassword,
-        confirm_password: confirmPassword
-    })
-    .done(function (response) {
-        if (response.success) {
-            TempleCore.showToast('Password reset successfully', 'success');
-            $modal.modal('hide');
-        } else {
-            TempleCore.showToast(response.message || 'Failed to reset password', 'error');
-        }
-    })
-    .fail(function (xhr) {
-        const response = xhr?.responseJSON;
-        if (response && response.errors) {
-            // Map backend field names
-            const map = { new_password: '#newPassword', confirm_password: '#confirmPassword' };
-            Object.keys(response.errors).forEach(function (field) {
-                const selector = map[field];
-                if (!selector) return;
-                const $f = $modal.find(selector);
-                $f.addClass('is-invalid');
-                $f.closest('.mb-3').find('.invalid-feedback').text(response.errors[field][0]).show();
-            });
-            TempleCore.showToast('Please fix the validation errors', 'error');
-        } else {
-            TempleCore.showToast(response?.message || 'Error resetting password', 'error');
-        }
-    })
-    .always(function () {
-        TempleCore.showLoading(false);
-    });
-},
+            TempleCore.showLoading(true);
+            TempleAPI.post(`/staff/${staffId}/reset-password-manual`, {
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+                .done(function (response) {
+                    if (response.success) {
+                        TempleCore.showToast('Password reset successfully', 'success');
+                        $modal.modal('hide');
+                    } else {
+                        TempleCore.showToast(response.message || 'Failed to reset password', 'error');
+                    }
+                })
+                .fail(function (xhr) {
+                    const response = xhr?.responseJSON;
+                    if (response && response.errors) {
+                        // Map backend field names
+                        const map = { new_password: '#newPassword', confirm_password: '#confirmPassword' };
+                        Object.keys(response.errors).forEach(function (field) {
+                            const selector = map[field];
+                            if (!selector) return;
+                            const $f = $modal.find(selector);
+                            $f.addClass('is-invalid');
+                            $f.closest('.mb-3').find('.invalid-feedback').text(response.errors[field][0]).show();
+                        });
+                        TempleCore.showToast('Please fix the validation errors', 'error');
+                    } else {
+                        TempleCore.showToast(response?.message || 'Error resetting password', 'error');
+                    }
+                })
+                .always(function () {
+                    TempleCore.showLoading(false);
+                });
+        },
 
         importStaff: function () {
             const self = this;

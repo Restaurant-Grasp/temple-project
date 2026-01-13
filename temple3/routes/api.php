@@ -95,7 +95,7 @@ use App\Http\Controllers\OccasionTableAssignmentController;
 use App\Http\Controllers\BookingHistoryController;
 use App\Http\Controllers\SpecialOccasionBookingController;
 use App\Http\Controllers\RelocationReportController;
-
+use App\Http\Controllers\QRCodeController;
 
 
 Route::prefix('v1')->group(function () {
@@ -103,13 +103,13 @@ Route::prefix('v1')->group(function () {
 	Route::post('/temple/validate', [TempleController::class, 'validateTemple']);
 
 	// ========================================
-	// PUBLIC SIGNED URL ROUTE (NO temple or auth middleware)
+	// PUBLIC SIGNED URL ROUTE (with temple middleware for DB access)
 	// ========================================
-	// PDF Download with Signed URL (accessible without Bearer token or temple context)
-	// Temple ID is included in the signed URL parameters
+	// PDF Download with Signed URL (accessible without Bearer token)
+	// Temple ID is included in the signed URL parameters and handled by temple middleware
 	Route::get('/booking-history/{id}/pdf/download', [BookingHistoryController::class, 'downloadPdf'])
 		->name('booking.pdf.download')
-		->middleware('signed');
+		->middleware('temple'); 
 
 	// Routes that require temple context
 	Route::middleware(['temple'])->group(function () {
@@ -134,7 +134,8 @@ Route::prefix('v1')->group(function () {
 		});
 
 		// Protected routes - Require authentication and active user check
-		Route::middleware(['auth:api', 'validate.temple.access', 'check.active'])->group(function () {
+		// Route::middleware(['validate.temple.access', 'check.active', 'auth:api'])->group(function () {
+		Route::middleware(['validate.temple.access', 'check.active', 'jwt.auth'])->group(function () {
 
 			// SINGLE ENDPOINT for getting all SYSTEM settings
 			Route::get('/temple/settings', [TempleController::class, 'getSystemSettings']);
@@ -1497,6 +1498,21 @@ Route::prefix('reports')->group(function () {
     Route::get('/relocation-stats', [RelocationReportController::class, 'getRelocationStats']);
     Route::get('/booking-relocation-history/{bookingId}', [RelocationReportController::class, 'getBookingRelocationHistory']);
 });
+// QR Code Routes
+Route::prefix('qr')->group(function () {
+    // Generate QR code for a booking
+    // GET /api/v1/qr/booking/{bookingId}?format=svg&size=300
+    // Formats: svg (default), png, base64
+    Route::get('/booking/{bookingId}', [QRCodeController::class, 'generateQRCode']);
+    
+    // Verify/Scan QR code and get LIVE booking data
+    // POST /api/v1/qr/verify
+    // Body: { "qr_data": "encrypted_qr_string" }
+    Route::post('/verify', [QRCodeController::class, 'verifyQRCode']);
+});
+
+// Booking QR Code (alternative route)
+Route::get('/bookings/{bookingId}/qr-code', [QRCodeController::class, 'generateQRCode']);
 			Route::prefix('pagoda')->group(function () {
 
 				// ========================================

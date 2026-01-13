@@ -99,7 +99,7 @@ class RelocationReportController extends Controller
                 'rh.action_type',
                 'rh.change_reason',
                 'rh.changed_by',
-                DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) as changed_by_name"),
+                'u.name as changed_by_name',
                 'u.email as changed_by_email',
                 'rh.changed_at'
             ]);
@@ -355,7 +355,7 @@ private function generatePdfReport($reportData, $request)
             $topAdmins = DB::table('special_occasion_relocation_history as rh')
                 ->leftJoin('users as u', 'rh.changed_by', '=', 'u.id')
                 ->select(
-                    DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) as admin_name"),
+                    'u.name as admin_name',
                     DB::raw('COUNT(*) as count')
                 )
                 ->when($occasionId, function($q) use ($occasionId) {
@@ -449,7 +449,7 @@ private function generatePdfReport($reportData, $request)
                     'rh.new_assign_number',
                     'rh.action_type',
                     'rh.change_reason',
-                    DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) as changed_by_name"),
+                    'u.name as changed_by_name',
                     'rh.changed_at'
                 ])
                 ->where('rh.booking_id', $bookingId)

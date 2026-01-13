@@ -61,6 +61,7 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+		'switch.db.before.auth' => \App\Http\Middleware\SwitchDatabaseBeforeAuth::class,
 		'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
 		'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
